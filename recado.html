@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Deixe um recado · Livro do Casal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // ===== Configuração (trocar só aqui) =====
+  // Token criado em CloudKit Console › API Access › API Tokens (container abaixo, ambiente Development).
+  const CK_API_TOKEN = "CK_API_TOKEN";
+  const CK_CONTAINER = "iCloud.app.hermesdigital.livrodocasal";
+  const CK_ENVIRONMENT = "development";
+</script>
+<style>
+  :root {
+    --ground: #F7F2EA; --paper: #FFFDF8; --ink: #2B2420; --muted: #8A7F76; --line: #E4DCD0; --accent: #7A2E3A; --photo: #EFE7DB;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: Jost, -apple-system, sans-serif; font-size: 17px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 480px; margin: 0 auto; padding: 32px 20px 48px; }
+  .caps { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .accent { color: var(--accent); }
+  h1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 34px; margin: 10px 0 6px; text-align: center; }
+  h1 i { color: var(--accent); }
+  .lead { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 20px; color: var(--muted); text-align: center; margin: 0 0 8px; }
+  .center { text-align: center; }
+  label { display: block; margin-top: 22px; }
+  input[type=text], textarea { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; font: inherit; color: var(--ink); padding: 10px 0; outline: none; }
+  input[type=text] { font-family: "Cormorant Garamond", serif; font-size: 22px; }
+  textarea { min-height: 160px; resize: vertical; background: var(--paper); border: 1px solid var(--line); border-radius: 2px; padding: 14px; margin-top: 8px; font-family: "Cormorant Garamond", serif; font-size: 20px; }
+  input:focus, textarea:focus { border-color: var(--accent); }
+  .photo { margin-top: 22px; }
+  .photo img { width: 100%; border-radius: 2px; border: 1px solid var(--line); margin-top: 10px; display: none; }
+  .pick { display: inline-block; min-height: 44px; line-height: 44px; color: var(--accent); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500; cursor: pointer; }
+  .pick input { display: none; }
+  button.primary { width: 100%; min-height: 52px; margin-top: 28px; border: 0; border-radius: 2px; background: var(--accent); color: var(--paper); font: 500 13px Jost, sans-serif; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; }
+  button.primary:disabled { opacity: .55; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 14px; text-align: center; }
+  .error { color: var(--accent); font-size: 14px; margin-top: 12px; text-align: center; min-height: 1em; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 2px; padding: 24px; margin-top: 28px; text-align: center; }
+  #signin { display: flex; justify-content: center; margin-top: 16px; min-height: 44px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="center caps">Livro do Casal</div>
+  <h1 id="couple">Um recado para os noivos</h1>
+  <p class="lead" id="when"></p>
+
+  <section id="closed" class="card hidden">
+    <p class="lead" id="closedText">Este link não está recebendo recados agora.</p>
+  </section>
+
+  <form id="form" class="hidden" novalidate>
+    <label><span class="caps">Como você assina</span>
+      <input type="text" id="name" maxlength="60" placeholder="Tia Cida" autocomplete="name" required></label>
+    <label><span class="caps">Quem você é para eles</span> <span class="caps" style="opacity:.6">opcional</span>
+      <input type="text" id="relation" maxlength="60" placeholder="tia do noivo"></label>
+    <label id="textWrap"><span class="caps">O seu recado</span>
+      <textarea id="text" maxlength="4000" placeholder="Escreva com calma. Só os dois vão ler."></textarea></label>
+    <div class="photo" id="photoWrap">
+      <label class="pick">Mandar uma foto com eles<input type="file" id="photo" accept="image/*"></label>
+      <img id="preview" alt="Foto escolhida">
+    </div>
+    <div id="signinBox" class="card hidden">
+      <p class="note" style="margin-top:0">Para o recado chegar com segurança, entre com o seu Apple ID. Os noivos veem só o nome que você escreveu acima.</p>
+      <div id="signin"></div>
+    </div>
+    <button class="primary" id="send" type="submit">Enviar recado</button>
+    <p class="error" id="error" role="alert"></p>
+    <p class="note" id="privacy">Só os noivos leem o que você escrever. Recados em áudio chegam pelo app deles.</p>
+  </form>
+
+  <section id="done" class="card hidden">
+    <div class="caps accent">Recado enviado</div>
+    <p class="lead" style="margin-top:12px">Obrigado. Ele entra no livro dos dois.</p>
+    <p class="note" id="doneNote"></p>
+  </section>
+  <div id="signout" class="hidden"></div>
+</main>
+
+<script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const token = (params.get("b") || "").replace(/[^a-z0-9]/gi, "");
+  const source = params.get("m") === "1" ? "mural" : "link";
+  const months = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const longDate = (ms) => { const d = new Date(ms); return d.getDate() + " de " + months[d.getMonth()] + " de " + d.getFullYear(); };
+  let board = null, photoBlob = null, signedIn = false;
+
+  function closed(text) { $("closedText").textContent = text; $("closed").classList.remove("hidden"); $("form").classList.add("hidden"); }
+  function field(rec, k) { return rec.fields[k] ? rec.fields[k].value : undefined; }
+
+  if (!token) { closed("Este link está incompleto. Peça aos noivos para mandarem de novo."); return; }
+  if (!window.CloudKit) { closed("Não deu para carregar a página. Confira a internet e tente de novo."); return; }
+
+  CloudKit.configure({
+    containers: [{
+      containerIdentifier: CK_CONTAINER,
+      environment: CK_ENVIRONMENT,
+      apiTokenAuth: { apiToken: CK_API_TOKEN, persist: true, signInButton: { id: "signin", theme: "black" }, signOutButton: { id: "signout" } }
+    }]
+  });
+  const container = CloudKit.getDefaultContainer();
+  const db = container.publicCloudDatabase;
+
+  function watchAuth() {
+    container.setUpAuth().then((user) => {
+      signedIn = !!user;
+      $("signinBox").classList.toggle("hidden", signedIn);
+      if (user) container.whenUserSignsOut().then(watchAuth);
+      else container.whenUserSignsIn().then(() => { signedIn = true; $("signinBox").classList.add("hidden"); });
+    });
+  }
+
+  db.fetchRecords([token]).then((res) => {
+    if (res.hasErrors || !res.records.length) { closed("Este link não existe mais. Peça aos noivos um link novo."); return; }
+    board = res.records[0];
+    const couple = field(board, "couple");
+    if (couple) { const [a, b] = couple.split(" & "); $("couple").innerHTML = ""; $("couple").append(a || couple, " "); const i = document.createElement("i"); i.textContent = "&"; $("couple").append(i, " ", b || ""); }
+    const wedding = field(board, "weddingDate");
+    $("when").textContent = wedding ? "deixe um recado para o casamento, em " + longDate(wedding) : "deixe um recado para os dois";
+    if (source === "mural") {
+      const now = Date.now(), opens = field(board, "opensAt"), closes = field(board, "closesAt");
+      if (opens && now < opens) { closed("O mural abre em " + longDate(opens) + ". Volte no dia da festa."); return; }
+      if (closes && now >= closes) { closed("O mural já fechou. Obrigado por ter vindo."); return; }
+    }
+    const allowText = field(board, "allowText") !== 0, allowPhoto = field(board, "allowPhoto") !== 0;
+    if (!allowText && !allowPhoto) { closed("Os noivos ainda não abriram este link para recados."); return; }
+    $("textWrap").classList.toggle("hidden", !allowText);
+    $("photoWrap").classList.toggle("hidden", !allowPhoto);
+    board.allowText = allowText; board.allowPhoto = allowPhoto;
+    $("form").classList.remove("hidden");
+    watchAuth();
+  }).catch(() => closed("Não deu para abrir agora. Confira a internet e tente de novo."));
+
+  // Foto reduzida no aparelho (lado maior 1600 px, JPEG).
+  $("photo").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob((b) => { photoBlob = b; $("preview").src = URL.createObjectURL(b); $("preview").style.display = "block"; }, "image/jpeg", 0.85);
+    };
+    img.src = URL.createObjectURL(f);
+  });
+
+  $("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    $("error").textContent = "";
+    const name = $("name").value.trim(), relation = $("relation").value.trim();
+    const text = board && board.allowText ? $("text").value.trim() : "";
+    const photo = board && board.allowPhoto ? photoBlob : null;
+    if (!name) { $("error").textContent = "Escreva como você assina."; return; }
+    if (!text && !photo) { $("error").textContent = "Falta o recado: escreva algo ou escolha uma foto."; return; }
+    if (!signedIn) { $("signinBox").classList.remove("hidden"); $("error").textContent = "Entre com o Apple ID para enviar."; return; }
+    const fields = { board: { value: token }, name: { value: name }, relation: { value: relation }, text: { value: text },
+                     source: { value: source }, createdAt: { value: Date.now() } };
+    if (photo) fields.photo = { value: photo };
+    $("send").disabled = true; $("send").textContent = "Enviando…";
+    db.saveRecords([{ recordType: "GuestMessage", fields }]).then((res) => {
+      if (res.hasErrors) throw res.errors[0];
+      $("form").classList.add("hidden");
+      $("done").classList.remove("hidden");
+      $("doneNote").textContent = "Assinado por " + name + ".";
+    }).catch((err) => {
+      const code = err && (err.ckErrorCode || err.serverErrorCode);
+      $("error").textContent = code === "AUTHENTICATION_REQUIRED" ? "Entre com o Apple ID para enviar." : "Não deu para enviar agora. Tente de novo em instantes.";
+      if (code === "AUTHENTICATION_REQUIRED") $("signinBox").classList.remove("hidden");
+      $("send").disabled = false; $("send").textContent = "Enviar recado";
+    });
+  });
+})();
+</script>
+</body>
+</html>
